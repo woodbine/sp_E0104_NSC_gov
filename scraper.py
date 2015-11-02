@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 #### IMPORTS 1.0
@@ -7,12 +6,13 @@ import os
 import re
 import scraperwiki
 import urllib2
-import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 
-#### FUNCTIONS 1.0
+#### FUNCTIONS 1.2
+
+import requests             # import requests for validating url
 
 def validateFilename(filename):
     filenameregex = '^[a-zA-Z0-9]+_[a-zA-Z0-9]+_[a-zA-Z0-9]+_[0-9][0-9][0-9][0-9]_[0-9QY][0-9]$'
@@ -39,6 +39,7 @@ def validateFilename(filename):
 
 
 def validateURL(url):
+
      try:
         r = requests.get(url, allow_redirects=True, timeout=20)
         count = 1
@@ -52,7 +53,7 @@ def validateURL(url):
         else:
             ext = os.path.splitext(url)[1]
         validURL = r.status_code == 200
-        validFiletype = ext in ['.csv', '.xls', '.xlsx']
+        validFiletype = ext.lower() in ['.csv', '.xls', '.xlsx']
         return validURL, validFiletype
      except:
         print ("Error validating URL.")
@@ -89,17 +90,19 @@ entity_id = "E0104_NSC_gov"
 urls = ["http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232014%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}", "http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232013%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}", "http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232012%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}", "http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232011%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}"]
 errors = 0
 data = []
+url = 'http://example.com'
 
 #### READ HTML 1.0
 
-
-for url in urls:
-    html = urllib2.urlopen(url)
-    soup = BeautifulSoup(html, 'lxml')
+html = urllib2.urlopen(url)
+soup = BeautifulSoup(html, 'lxml')
 
 
 #### SCRAPE DATA
 
+for url in urls:
+    html = urllib2.urlopen(url)
+    soup = BeautifulSoup(html, 'lxml')
     block = soup.find('table', 'ms-listviewtable')
     links = block.findAll('td', 'ms-vb2')
     for link in links:
@@ -109,7 +112,6 @@ for url in urls:
         csvMth = csvfile.strip().split(' ')[0][:3]
         if 'over' in csvYr:
             csvYr = '2013'
-
         csvMth = convert_mth_strings(csvMth.upper())
         data.append([csvYr, csvMth, url])
 
