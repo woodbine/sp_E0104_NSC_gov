@@ -87,10 +87,10 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "E0104_NSC_gov"
-urls = ["http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232014%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}", "http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232013%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}", "http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232012%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}", "http://www.n-somerset.gov.uk/Your_Council/Finance/_layouts/inplview.aspx?List={EEF6F78D-4B47-4589-968B-E4A4940C5803}&View={A855A218-D874-4438-9D19-05513C606348}&ViewCount=86&ListViewPageUrl=http://www.n-somerset.gov.uk/Your_Council/Finance/Pages/over250spendreports.aspx&IsXslView=TRUE&GroupString=%3B%232011%3B%23&IsGroupRender=TRUE&WebPartID={A855A218-D874-4438-9D19-05513C606348}"]
+url = "http://data.n-somerset.gov.uk/View/finance/north-somerset-council-spend-over-250?loggedin=true&CurrentPage=1&Download=csv&OrderByColumn=%5BTransactionDate%5D&OrderByDirection=ASC&PageNumber=&VisibleColumns=0_Amount&VisibleColumns=1_Beneficiary&VisibleColumns=2_CostCentre&VisibleColumns=3_Description&VisibleColumns=4_TransactionDate&chartCurrentPage=1&chartNumberToShow=10&chartType=table&filter%5B0%5D.ColumnToSearch=Amount&filter%5B0%5D.From=&filter%5B0%5D.SearchNumber=&filter%5B0%5D.SearchOperator=contains&filter%5B0%5D.SearchOperatorNumber=greaterthan&filter%5B0%5D.SearchText=&filter%5B0%5D.To=&getVisualisationData=false&numberToShow=10&radio=on&xAxis=DateTime%23TransactionDate%23Day&yAxis=Currency%23Amount&yAxisAggregate=sum"
 errors = 0
 data = []
-url = 'http://example.com'
+
 
 #### READ HTML 1.0
 
@@ -100,20 +100,12 @@ soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-for url in urls:
-    html = urllib2.urlopen(url)
-    soup = BeautifulSoup(html, 'lxml')
-    block = soup.find('table', 'ms-listviewtable')
-    links = block.findAll('td', 'ms-vb2')
-    for link in links:
-        url = 'http://www.n-somerset.gov.uk' + link.find('a')['href']
-        csvfile = link.find('a').text
-        csvYr = csvfile.strip().split(' ')[1]
-        csvMth = csvfile.strip().split(' ')[0][:3]
-        if 'over' in csvYr:
-            csvYr = '2013'
-        csvMth = convert_mth_strings(csvMth.upper())
-        data.append([csvYr, csvMth, url])
+
+html = requests.post(url)
+csvMth = "Y1"
+csvYr = "2016"
+csvMth = convert_mth_strings(csvMth.upper())
+data.append([csvYr, csvMth, url])
 
 
 #### STORE DATA 1.0
