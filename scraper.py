@@ -87,7 +87,8 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "E0104_NSC_gov"
-url = "http://data.n-somerset.gov.uk/View/finance/north-somerset-council-spend-over-250?loggedin=true&CurrentPage=1&Download=csv&OrderByColumn=%5BTransactionDate%5D&OrderByDirection=ASC&PageNumber=&VisibleColumns=0_Amount&VisibleColumns=1_Beneficiary&VisibleColumns=2_CostCentre&VisibleColumns=3_Description&VisibleColumns=4_TransactionDate&chartCurrentPage=1&chartNumberToShow=10&chartType=table&filter%5B0%5D.ColumnToSearch=Amount&filter%5B0%5D.From=&filter%5B0%5D.SearchNumber=&filter%5B0%5D.SearchOperator=contains&filter%5B0%5D.SearchOperatorNumber=greaterthan&filter%5B0%5D.SearchText=&filter%5B0%5D.To=&getVisualisationData=false&numberToShow=10&radio=on&xAxis=DateTime%23TransactionDate%23Day&yAxis=Currency%23Amount&yAxisAggregate=sum"
+urls = "http://data.n-somerset.gov.uk/Download/finance/north-somerset-council-spend-over-250?page={}"
+url = 'http://example.com'
 errors = 0
 data = []
 
@@ -99,13 +100,21 @@ soup = BeautifulSoup(html, 'lxml')
 
 
 #### SCRAPE DATA
+import itertools
 
-
-html = requests.post(url)
-csvMth = "Y1"
-csvYr = "2016"
-csvMth = convert_mth_strings(csvMth.upper())
-data.append([csvYr, csvMth, url])
+for i in itertools.count():
+    html = urllib2.urlopen(urls.format(i))
+    soup = BeautifulSoup(html, 'lxml')
+    links = soup.find_all('a', 'download button green CSV')
+    next_page = soup.find('table', id='DataSetList').find('tfoot').find_all('a')[-1].text
+    for link in links:
+        url = 'http://data.n-somerset.gov.uk'+link['href'].split('?version')[0]
+        csvYr = link['href'].split('/CSV')[0].replace('-1', '')[-4:]
+        csvMth = link['href'].split('/CSV')[0].replace('-1', '').split('-')[-2][:3]
+        csvMth = convert_mth_strings(csvMth.upper())
+        data.append([csvYr, csvMth, url])
+    if '>' not in next_page:
+        break
 
 
 #### STORE DATA 1.0
