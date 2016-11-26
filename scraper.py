@@ -106,11 +106,16 @@ for i in itertools.count():
     html = urllib2.urlopen(urls.format(i))
     soup = BeautifulSoup(html, 'lxml')
     links = soup.find_all('a', 'download button green CSV')
-    next_page = soup.find('table', id='DataSetList').find('tfoot').find_all('a')[-1].text
+    next_page=''
+    try:
+        next_page = soup.find('table', id='DataSetList').find('tfoot').find_all('a')[-1].text
+    except:
+        pass
+
     for link in links:
         url = 'http://data.n-somerset.gov.uk'+link['href'].split('?version')[0]
-        csvYr = link['href'].split('/CSV')[0].replace('-1', '')[-4:]
-        csvMth = link['href'].split('/CSV')[0].replace('-1', '').split('-')[-2][:3]
+        csvYr = link['href'].split('/')[-1]
+        csvMth = 'Q0'
         csvMth = convert_mth_strings(csvMth.upper())
         data.append([csvYr, csvMth, url])
     if '>' not in next_page:
@@ -138,4 +143,3 @@ if errors > 0:
 
 
 #### EOF
-
